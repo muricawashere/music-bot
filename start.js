@@ -96,7 +96,7 @@ Respond with your selection`)
     if(command == `${prefix}queue`) {
         if(!serverQueue) return message.channel.send('There is nothing playing')
         return message.channel.send(`**Queue**
-${serverQueue.songs.map(song=>`**-**`).join('\n')}
+${serverQueue.songs.map(song=>`**-**${song.title}`).join('\n')}
 
 **Now Playing: ${serverQueue.songs[0].title}`)
     }
