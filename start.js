@@ -73,6 +73,49 @@ Respond with your selection`)
         serverQueue.connection.dispatcher.end('Skip command used')
         return undefined
     }
+    if(command == `${prefix}stop`) {
+        if(!message.member.voiceChannel) return message.channel.send('You are not in a voice channel')
+        if(!serverQueue) return message.channel.send('There is nothing playing')
+        serverQueue.songs = []
+        serverQueue.connection.dispatcher.end('Stopped')
+        return undefined
+    }
+    if(command == `${prefix}volume`) {
+        if(!message.member.voiceChannel) return message.channel.send('Your arent in a voice channel')
+        if(!serverQueue) return message.channel.send('There is nothing playing')
+        if(!args[1]) return message.channel.send(`The current volume is: **${serverQueue.volume}**`)
+        serverQueue.volume = args[1]
+        if(args[1]>100||args[1]<1) return message.channel.send('Please set a volume from 1-100')
+        serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1]/100)
+        return message.channel.send(`Volume set to: **${serverQueue.volume}**`)
+    }
+    if(command == `${prefix}np`) {
+        if(!serverQueue) return message.channel.send('There is nothing playing')
+        return message.channel.send(`Now playing: **${serverQueue.songs[0].title}**`)
+    }
+    if(command == `${prefix}queue`) {
+        if(!serverQueue) return message.channel.send('There is nothing playing')
+        return message.channel.send(`**Queue**
+${serverQueue.songs.map(song=>`**-**`).join('\n')}
+
+**Now Playing: ${serverQueue.songs[0].title}`)
+    }
+    if(command == `${prefix}pause`) {
+        if(serverQueue && serverQueue.playing) {
+            serverQueue.playing = false
+            serverQueue.connection.dispatcher.pause()
+            return message.channel.send('Playback paused')
+        }
+        return message.channel.send('There is nothing playing')
+    }
+    if(command == `${prefix}resume`) {
+        if(serverQueue && !serverQueue.playing) {
+            serverQueue.playing = true
+            serverQueue.connection.dispatcher.resume()
+            return message.channel.send('Playback resumed')
+        }
+        return message.channel.send('There is nothing playing')
+    }
 })
 
 bot.login('NDcyOTA5MDAxMzg3MTQ3MjY0.Dj6O0g.I7j30BSTX5jJzNcejjZOFuUHg0E')
@@ -129,4 +172,5 @@ function play(guild, song) {
         serverQueue.songs.shift()
         play(guild, serverQueue.songs[0])
     }).on('error', error => console.error(error))
+    dispatcher.setVolumeLogarithmic(serverQueue.)
 }
