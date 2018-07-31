@@ -98,6 +98,7 @@ async function handleSong(video, message, voiceChannel, playlist = false) {
         try {
             var connection = await voiceChannel.join()
             queueConstructor.connection = connection
+            queueConstructor.voiceChannel = voiceChannel
             play(message.guild, queueConstructor.songs[0])
         } catch (err) {
             queue.delete(message.guild.id)
