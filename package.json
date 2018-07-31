@@ -1,0 +1,14 @@
+{
+  "name": "music-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "ffmpeg": "^0.0.4",
+    "node-opus": "^0.3.0",
+    "opusscript": "^0.0.6",
+    "simple-youtube-api": "^5.0.2",
+    "ytdl-core": "^0.21.1"
+  }
+}
