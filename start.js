@@ -83,11 +83,11 @@ Respond with your selection`)
     if(command == `${prefix}volume`) {
         if(!message.member.voiceChannel) return message.channel.send('Your arent in a voice channel')
         if(!serverQueue) return message.channel.send('There is nothing playing')
-        if(!args[1]) return message.channel.send(`The current volume is: **${serverQueue.volume}**`)
-        serverQueue.volume = args[1]
-        if(args[1]>100||args[1]<1) return message.channel.send('Please set a volume from 1-100')
+        if(!args[0]) return message.channel.send(`The current volume is: **${serverQueue.volume}**`)
+        serverQueue.volume = args[0]/100
+        if(args[0]>100||args[0]<1) return message.channel.send('Please set a volume from 1-100')
         serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1]/100)
-        return message.channel.send(`Volume set to: **${serverQueue.volume}**`)
+        return message.channel.send(`Volume set to: **${serverQueue.volume*100}**`)
     }
     if(command == `${prefix}np`) {
         if(!serverQueue) return message.channel.send('There is nothing playing')
