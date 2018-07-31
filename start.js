@@ -4,6 +4,8 @@ const prefix = '!'
 const YouTube = require('simple-youtube-api')
 const youtube = new YouTube('AIzaSyAYGlod1nt7f-sfm7AWKqRoKnSwWh8TkaA')
 
+const queue = new Map()
+
 const bot = new Client({disableEveryone:true})
 
 bot.on('ready', async() => {
@@ -41,27 +43,29 @@ bot.on('message', async message => {
 bot.login('NDcyOTA5MDAxMzg3MTQ3MjY0.Dj6O0g.I7j30BSTX5jJzNcejjZOFuUHg0E')
 
 async function handleSong(video, message, voiceChannel, playlist = false) {
+    const serverQueue = queue.get(message.guild.id)
     var song = {
         id: video.id,
         title: video.title,
         url: `https://youtube.com/watch?v=${video.id}`
     }
     console.log(song)
-    if(!queueConstructor) {
+    if(!serverQueue) {
         var queueConstructor = {
             connection: null,
             volume: 1,
             playing: false,
             songs: [],
         }
-        queueConstructor.voiceChannel = voiceChannel
+        queue.set(message.guild.id, queueConstructor)
 
+        queueConstructor.songs.push(song)
         try {
             var connection = await voiceChannel.join()
             queueConstructor.connection = connection
-            queueConstructor.songs.push(song)
-            play(song)
+            play(msg.guild, queueConstructor.songs[0])
         } catch (err) {
+            queue.delete(message.guild.id)
             console.error(`couldnt join for some readon : ${err}`)
         }
         console.log(queueConstructor)
@@ -70,21 +74,18 @@ async function handleSong(video, message, voiceChannel, playlist = false) {
     }
 }
 
-function play(song) {
+function play(guild, song) {
+    const serverQueue = queue.get(guild.id)
     //console.log(queueConstructor.connection)
     if(!song) {
-        queueConstructor.voiceChannel.leave()
-        var queueConstructor = {
-            connection: null,
-            volume: 1,
-            playing: false,
-            songs: [],
-        }
+        serverQueue.voiceChannel.leave()
+        queue.delete(guild.id)
+        return
     }
     const dispatcher = queueConstructor.connection.playStream(ytdl(song.url)).on('end', reason => {
         if (reason === 'Stream is not generating quickly enough.') console.log('Song ended.');
         else console.log(reason);
-        queueConstructor.songs.shift()
-        play(queueConstructor.songs[0])
+        serverQueue.songs.shift()
+        play(guild, serverQueue.songs[0])
     }).on('error', error => console.error(error))
 }
