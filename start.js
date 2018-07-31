@@ -115,6 +115,7 @@ function play(guild, song) {
     serverQueue.playing = true
     //console.log(queueConstructor.connection)
     if(!song) {
+        console.log(serverQueue)
         serverQueue.voiceChannel.leave()
         queue.delete(guild.id)
         serverQueue.playing = false
