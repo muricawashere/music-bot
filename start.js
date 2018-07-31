@@ -36,7 +36,41 @@ bot.on('message', async message => {
                 //console.log(video2)
                 handleSong(video2, message, voiceChannel, true)
             }
+        } else {
+            try {
+                var video = await youtube.getVideo(url)
+            } catch (err) {
+                try {
+                    var videos = await youtube.searchVideos(url)
+                    let index = 0
+
+                    message.channel.send(`__**Song Selection**__
+${videos.map(video2 => `**${++index} -** ${video2.title}`).join('\n')}
+Respond with your selection`)
+                    try {
+                        var response = await message.channel.awaitMessages(msg2 => msg2.content > 0 && msg2 < 11, {
+                            maxMatches: 1,
+                            time: 10000,
+                            errors: ['time']
+                        })
+                    } catch (err) {
+                        return message.channel.send('Invalid response')
+                    }
+                    const videoIndex = parseInt(response.first().content)
+                    var video = await youtube.getVideoByID(videos[videoIndex-1].id)
+                } catch (err) {
+                    return message.channel.send('Couldnt find any videos :(')
+                }
+            }
+            return handleSong(video, message, voiceChannel)
         }
+    }
+
+    if(command == `${prefix}skip`) {
+        if(!message.member.voiceChannel) return message.channel('You need to be in a voice channel')
+        if(!serverQueue) return message.channel.send('Nothing is playing')
+        serverQueue.connection.dispatcher.end('Skip command used')
+        return undefined
     }
 })
 
@@ -76,15 +110,18 @@ async function handleSong(video, message, voiceChannel, playlist = false) {
 
 function play(guild, song) {
     const serverQueue = queue.get(guild.id)
+    serverQueue.playing = true
     //console.log(queueConstructor.connection)
     if(!song) {
         serverQueue.voiceChannel.leave()
         queue.delete(guild.id)
+        serverQueue.playing = false
         return
     }
     const dispatcher = serverQueue.connection.playStream(ytdl(song.url)).on('end', reason => {
         if (reason === 'Stream is not generating quickly enough.') console.log('Song ended.');
         else console.log(reason);
+        console.log(serverQueue)
         serverQueue.songs.shift()
         play(guild, serverQueue.songs[0])
     }).on('error', error => console.error(error))
