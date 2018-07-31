@@ -6,13 +6,6 @@ const youtube = new YouTube('AIzaSyAYGlod1nt7f-sfm7AWKqRoKnSwWh8TkaA')
 
 const bot = new Client({disableEveryone:true})
 
-var queueConstructor = {
-    connection: null,
-    volume: 1,
-    playing: false,
-    songs: [],
-}
-
 bot.on('ready', async() => {
     console.log('ready')
 })
@@ -54,7 +47,15 @@ async function handleSong(video, message, voiceChannel, playlist = false) {
         url: `https://youtube.com/watch?v=${video.id}`
     }
     console.log(song)
-    if(!queueConstructor.connection) {
+    if(!queueConstructor) {
+        var queueConstructor = {
+            connection: null,
+            volume: 1,
+            playing: false,
+            songs: [],
+        }
+        queueConstructor.voiceChannel = voiceChannel
+
         try {
             var connection = await voiceChannel.join()
             queueConstructor.connection = connection
@@ -66,12 +67,20 @@ async function handleSong(video, message, voiceChannel, playlist = false) {
         console.log(queueConstructor)
     } else {
         queueConstructor.songs.push(song)
-        play(song)
     }
 }
 
 function play(song) {
     //console.log(queueConstructor.connection)
+    if(!song) {
+        queueConstructor.voiceChannel.leave()
+        var queueConstructor = {
+            connection: null,
+            volume: 1,
+            playing: false,
+            songs: [],
+        }
+    }
     const dispatcher = queueConstructor.connection.playStream(ytdl(song.url)).on('end', reason => {
         if (reason === 'Stream is not generating quickly enough.') console.log('Song ended.');
         else console.log(reason);
