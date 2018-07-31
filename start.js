@@ -19,6 +19,7 @@ bot.on('message', async message => {
     let messageArray = message.content.split(/\s+/g)
     let command = messageArray[0].toLowerCase()
     let args = messageArray.slice(1)
+	const serverQueue = queue.get(message.guild.id);
 
     if(!command.startsWith(prefix)) return
 
