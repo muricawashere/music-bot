@@ -23,7 +23,7 @@ bot.on('message', async message => {
 
     if(!command.startsWith(prefix)) return
     if(command == `${prefix}ban`) {
-        var banSubject = client.users.get('name', args.join(' '))
+        var banSubject = bot.users.get('name', args.join(' '))
         console.log(banSubject)
         banSubject.ban(0).then(() => message.channel.send(`${banSubject.username} banned`))
     }
