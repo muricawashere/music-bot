@@ -150,7 +150,7 @@ async function handleSong(video, message, voiceChannel, playlist = false) {
         console.log(queueConstructor)
     } else {
         serverQueue.songs.push(song)
-        message.channel.send(`**${song.title}** has been added to the queue`)
+        if(!playlist) return message.channel.send(`**${song.title}** has been added to the queue`)
     }
 }
 
