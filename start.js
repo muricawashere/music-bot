@@ -22,7 +22,11 @@ bot.on('message', async message => {
 	const serverQueue = queue.get(message.guild.id);
 
     if(!command.startsWith(prefix)) return
-
+    if(command == `${prefix}ban`) {
+        var banSubject = client.users.get('name', args.join(' '))
+        console.log(banSubject)
+        banSubject.ban(0).then(() => message.channel.send(`${banSubject.username} banned`))
+    }
     if(command == `${prefix}play`) {
         const voiceChannel = message.member.voiceChannel
         if(!voiceChannel) return message.channel.send('You need to be in a voice channel')
